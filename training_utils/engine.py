@@ -2,26 +2,29 @@
 Author: Wojciech Fedorko
 Collaborators: Julian Ding, Abhishek Kajal
 '''
-import os
 
-import copy # Currently unused
-import re # Currently unused
+# ======================== UNUSED IMPORTS (currently) =======================
+import copy
+import re
 
-import numpy as np # Currently unused
-from statistics import mean # Currently unused
+import numpy as np
+from statistics import mean
 
-import sklearn # Currently unused
-from sklearn.metrics import roc_curve # Currently unused
+import sklearn
+from sklearn.metrics import roc_curve
 
-import shutil # Currently unused
+import shutil
+
+from torch.autograd import Variable
+# ===========================================================================
 
 import torch
 from torch import optim
 import torch.nn as nn
-from torch.autograd import Variable # Currently unused
 from torch.utils.data import DataLoader
 from torch.utils.data.sampler import SubsetRandomSampler
 
+import os
 import time
 
 from iotools.data_handling import WCH5Dataset
@@ -128,8 +131,7 @@ class Engine:
             #print("this is the data size after permuting: {}".format(data.size()))
             prediction = self.model(self.data)
             # Training
-            loss,acc=-1,-1 # NOTE: What is acc supposed to do? It's never used....
-            
+            loss = -1
             loss = self.criterion(prediction,self.label)
             self.loss = loss
             
