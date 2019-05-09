@@ -2,8 +2,14 @@
 Engine class testing script
 Author: Julian Ding
 """
+import os
+import sys
 
-import engine
+par_dir = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
+if par_dir not in sys.path:
+    sys.path.append(par_dir)
+
+import training_utils.engine as engine
 import models.resnet as resnet
 
 # Preamble (will be done from parse_args() in __main__ in final script)

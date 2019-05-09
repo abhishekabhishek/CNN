@@ -2,30 +2,30 @@
 Author: Wojciech Fedorko
 Collaborators: Julian Ding, Abhishek Kajal
 '''
+import os
 
 import copy # Currently unused
 import re # Currently unused
+
+import numpy as np # Currently unused
+from statistics import mean # Currently unused
+
+import sklearn # Currently unused
+from sklearn.metrics import roc_curve # Currently unused
+
+import shutil # Currently unused
 
 import torch
 from torch import optim
 import torch.nn as nn
 from torch.autograd import Variable # Currently unused
 from torch.utils.data import DataLoader
+from torch.utils.data.sampler import SubsetRandomSampler
 
-import numpy as np # Currently unused
 import time
 
-from statistics import mean # Currently unused
-
-import shutil # Currently unused
-import os
-
-import sklearn # Currently unused
-from sklearn.metrics import roc_curve # Currently unused
-
-
 from iotools.data_handling import WCH5Dataset
-from torch.utils.data.sampler import SubsetRandomSampler
+from utils.notebook_utils import progress_bar, CSVData
 
 
 class Engine:
@@ -154,7 +154,6 @@ class Engine:
         # (variable names changed to match new Engine architecture. Added comments and minor debugging)
         
         # Prepare attributes for data logging
-        from notebook_utils import progress_bar, CSVData
         self.train_log, self.test_log = CSVData(self.dirpath+'/log_train.csv'), CSVData(self.dirpath+'/log_test.csv')
         # Set neural net to training mode
         self.model.train()
@@ -237,7 +236,4 @@ class Engine:
                 self.opt.load_state_dict(checkpoint['optimizer'])
             # load iteration count
             self.iteration = checkpoint['global_step']
-    
-        
-
-        
+            
