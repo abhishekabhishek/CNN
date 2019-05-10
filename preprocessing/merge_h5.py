@@ -6,6 +6,8 @@ from pathlib import Path
 import argparse
 import matplotlib
 import matplotlib.pyplot as plt
+import configparser
+
 #import seaborn as sn
 
 import h5py
@@ -25,17 +27,21 @@ def parse_args():
     parser.add_argument('keys', type=str, nargs='*',
                         help="keys to store")
     parser.add_argument('--block_size', type=int, default=3500)
-    
-    
-    
     args = parser.parse_args()
     return args
 
+def parse_config(config_path):
+    config = configparser.ConfigParser()
+    config.read(config_path)
+    return config
 
 def merge_h5(config):
     
     #read in the input file list
-    with open(config.input_file_list[0]) as f:
+    #with open(config.input_file_list[0]) as f:
+        #files = f.readlines()
+        
+    with open(config['FILES']['input_file_list']) as f:
         files = f.readlines()
 
     #remove whitespace 
@@ -49,11 +55,10 @@ def merge_h5(config):
     print("Files are:")
     print(file_list)
 
-    keys=config.keys
+    keys=[key for key in config['DATASET']['keys'].split(',')]
     print("keys are:")
     print(keys)
 
-    
     start_indices=np.zeros((len(file_list)),dtype=np.int)
     chunk_lengths=np.zeros((len(file_list)),dtype=np.int)
     total_rows=0
@@ -116,7 +121,7 @@ def merge_h5(config):
                         
                                   
     print("opening the hdf5 file\n")
-    f=h5py.File(config.output_file[0],'x')
+    f=h5py.File(config['FILES']['output_file'],'x')
     
     dsets={}
     for key in keys:
@@ -125,21 +130,21 @@ def merge_h5(config):
                                 dtype=dtypes[key])
         dsets[key]=c_dset
 
-
+    block_size = int(config['DATASET']['block_size'])
     for key in keys:
 
         offset=0
         for file_index, file_name in enumerate(file_list):
             infile=h5py.File(file_name,"r")
 
-            data=f[key]
+            data=infile[key]
 
             #ceiling division trick
             assert offset==start_indices[file_index]
-            num_blocks_in_file=-(-chunk_lengths[file_index] // config.block_size)
+            num_blocks_in_file=-(-chunk_lengths[file_index] // block_size)
             for iblock in range(num_blocks_in_file):
-                block_begin=iblock*config.block_size
-                block_end=(iblock+1)*config.block_size
+                block_begin=iblock*block_size
+                block_end=(iblock+1)*block_size
                 if block_end>chunk_lengths[file_index]:
                     block_end=chunk_lengths[file_index]
 
@@ -149,7 +154,6 @@ def merge_h5(config):
         
 
     f.close()
-        
                              
                 
             
@@ -158,6 +162,6 @@ def merge_h5(config):
     
 
 if __name__ == '__main__':
-
-    config=parse_args()
+    path_to_config = '/project/'+ os.listdir('/project')[0] + '/akajal/CNN/CNN/merge_config.ini'
+    config=parse_config(path_to_config)
     merge_h5(config)

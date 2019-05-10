@@ -40,6 +40,8 @@ class WCH5Dataset(Dataset):
         self.labels = np.array(hdf5_labels)
 
         self.transform=transform
+        
+        self.reduced_size = reduced_dataset_size
 
         #the section below handles the subset
         #(for reduced dataset training tests)
@@ -52,8 +54,8 @@ class WCH5Dataset(Dataset):
 
         indices = np.arange(len(self))
 
-        if reduced_dataset_size is not None:
-            assert len(indices)>=reduced_dataset_size
+        if self.reduced_size is not None:
+            assert len(indices)>=self.reduced_size
             indices = np.random.choice(indices, reduced_dataset_size)
 
         #shuffle index array
@@ -79,6 +81,7 @@ class WCH5Dataset(Dataset):
 
 
     def __len__(self):
-        return self.labels.shape[0]
-
-
+        if self.reduced_size is None:
+            return self.labels.shape[0]
+        else:
+            return self.reduced_size
