@@ -24,6 +24,9 @@ from visualization_utils.plot_utils import plot_confusion_matrix
 import heapq
 from ROOT_utils.display_list import display_list
 
+# Testing
+import copy
+
 class Engine:
     """The training engine 
     
@@ -155,6 +158,8 @@ class Engine:
         # CODE BELOW COPY-PASTED FROM [HKML CNN Image Classification.ipynb]
         # (variable names changed to match new Engine architecture. Added comments and minor debugging)
         
+        optim_state_list = []
+        
         # Prepare attributes for data logging
         self.train_log, self.val_log = CSVData(self.dirpath+'/log_train.csv'), CSVData(self.dirpath+'/val_test.csv')
         # Set neural net to training mode
@@ -166,7 +171,6 @@ class Engine:
         # Training loop
         while (int(epoch+0.5) < epochs):
             print('Epoch',int(epoch+0.5),'Starting @',time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
-            j = 0
             # Loop over data samples and into the network forward function
             for i, data in enumerate(self.train_iter):
                 
@@ -189,12 +193,14 @@ class Engine:
                 # Log/Report
                 #
                 # Record the current performance on train set
+                optim_state_list.append(self.optimizer.state_dict()['state'][list(self.optimizer.state_dict()['state'].keys())[0]]['exp_avg'])
                 self.train_log.record(['iteration','epoch','accuracy','loss'],[iteration,epoch,res['accuracy'],res['loss']])
+                
                 self.train_log.write()
+                
                 # once in a while, report
                 if i==0 or (i+1)%report_interval == 0:
-                    #print('... Iteration %d ... Epoch %1.2f ... Loss %1.3f ... Accuracy %1.3f' % (iteration,epoch,res['loss'],res['accuracy']))#
-                    pass
+                    print('... Iteration %d ... Epoch %1.2f ... Loss %1.3f ... Accuracy %1.3f' % (iteration,epoch,res['loss'],res['accuracy']))
                     
                 # more rarely, run validation
                 if (i+1)%valid_interval == 0:
@@ -221,6 +227,7 @@ class Engine:
             
         self.val_log.close()
         self.train_log.close()
+        np.save(self.dirpath + "/optim_state_array.npy", np.array(optim_state_list))
     
     # ========================================================================
 
